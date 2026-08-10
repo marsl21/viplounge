@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Röbis VIP Lounge</title>
+<style>
+  :root{
+    --bg:#09110d;
+    --panel:#101b15;
+    --panel2:#16241b;
+    --gold:#e6c26b;
+    --gold2:#f7e6ab;
+    --green:#2fb46e;
+    --red:#d84f4f;
+    --text:#f8f6ef;
+    --muted:#b8c1ba;
+    --line:rgba(255,255,255,.09);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(230,194,107,.13), transparent 24rem),
+      radial-gradient(circle at 90% 18%, rgba(47,180,110,.10), transparent 26rem),
+      linear-gradient(180deg,#07100b 0%,#0a120e 55%,#08100c 100%);
+    color:var(--text);
+    min-height:100vh;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.18;
+    background-image:
+      linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+    background-size:38px 38px;
+    mask-image:linear-gradient(to bottom,black,transparent 80%);
+  }
+  .wrap{width:min(1120px,calc(100% - 32px));margin:auto}
+  .hero{
+    min-height:540px;
+    display:grid;
+    place-items:center;
+    text-align:center;
+    padding:70px 0 48px;
+    position:relative;
+  }
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    border:1px solid rgba(230,194,107,.28);
+    background:rgba(230,194,107,.08);
+    color:var(--gold2);
+    padding:9px 14px;border-radius:999px;
+    font-size:.84rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    box-shadow:0 10px 40px rgba(0,0,0,.25);
+  }
+  .hero h1{
+    margin:22px 0 10px;
+    font-size:clamp(3rem,8vw,6.6rem);
+    line-height:.88;
+    letter-spacing:-.055em;
+    text-transform:uppercase;
+  }
+  .hero h1 span{color:var(--gold)}
+  .hero .claim{
+    margin:18px auto 0;
+    max-width:700px;
+    font-size:clamp(1.15rem,2.5vw,1.55rem);
+    color:#e9eee9;
+  }
+  .hero .sub{
+    margin:10px auto 0;
+    max-width:620px;
+    color:var(--muted);
+    font-size:1rem;
+    line-height:1.65;
+  }
+  .price-pill{
+    margin-top:25px;
+    display:inline-flex;align-items:baseline;gap:7px;
+    padding:14px 20px;border-radius:18px;
+    background:linear-gradient(135deg,var(--gold),#b58a31);
+    color:#171006;font-weight:900;
+    box-shadow:0 16px 45px rgba(230,194,107,.18);
+  }
+  .price-pill strong{font-size:1.65rem}
+  .features{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:14px;margin-top:-35px;position:relative;z-index:2;
+  }
+  .feature{
+    min-height:145px;
+    background:linear-gradient(180deg,rgba(22,36,27,.96),rgba(14,25,18,.96));
+    border:1px solid var(--line);
+    border-radius:22px;padding:20px;
+    box-shadow:0 15px 40px rgba(0,0,0,.22);
+  }
+  .feature .icon{font-size:1.8rem}
+  .feature h3{font-size:1rem;margin:12px 0 6px}
+  .feature p{font-size:.9rem;color:var(--muted);line-height:1.45;margin:0}
+  .section{padding:72px 0}
+  .section-title{margin-bottom:28px}
+  .eyebrow{color:var(--gold);font-weight:900;text-transform:uppercase;letter-spacing:.13em;font-size:.78rem}
+  .section h2{font-size:clamp(2rem,4vw,3rem);margin:8px 0 0;letter-spacing:-.03em}
+  .games{display:grid;gap:18px}
+  .game{
+    border:1px solid var(--line);
+    background:linear-gradient(135deg,rgba(20,35,26,.98),rgba(12,23,16,.98));
+    border-radius:26px;
+    padding:24px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    gap:22px;
+    box-shadow:0 16px 50px rgba(0,0,0,.20);
+  }
+  .game-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .status{
+    display:inline-flex;align-items:center;gap:7px;
+    border-radius:999px;padding:7px 11px;
+    font-size:.78rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em
+  }
+  .status.free{background:rgba(47,180,110,.12);color:#78e6aa;border:1px solid rgba(47,180,110,.25)}
+  .status.low{background:rgba(230,194,107,.12);color:var(--gold2);border:1px solid rgba(230,194,107,.25)}
+  .status.sold{background:rgba(216,79,79,.12);color:#ff9494;border:1px solid rgba(216,79,79,.25)}
+  .game-date{color:var(--muted);font-size:.92rem}
+  .game h3{font-size:clamp(1.35rem,3vw,2rem);margin:0 0 6px;letter-spacing:-.02em}
+  .game p{margin:0;color:var(--muted)}
+  .buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  button{
+    appearance:none;border:0;cursor:pointer;
+    border-radius:15px;padding:13px 17px;
+    font-weight:900;font-size:.94rem;
+    transition:.18s ease;
+  }
+  button:hover{transform:translateY(-2px)}
+  .btn2{background:#f0f4f0;color:#102016}
+  .btn4{background:var(--gold);color:#181207}
+  button:disabled{opacity:.28;cursor:not-allowed;transform:none}
+  .soldtext{
+    color:#ff9595;font-weight:900;text-transform:uppercase;
+    letter-spacing:.08em;font-size:1rem;padding:14px 0
+  }
+  .note{
+    margin-top:16px;text-align:center;color:var(--muted);font-size:.9rem
+  }
+  .footer{padding:25px 0 50px;text-align:center;color:#7f8e84;font-size:.82rem}
+  .modal{
+    position:fixed;inset:0;background:rgba(0,0,0,.72);
+    backdrop-filter:blur(7px);
+    display:none;place-items:center;padding:18px;z-index:20;
+  }
+  .modal.show{display:grid}
+  .dialog{
+    width:min(470px,100%);
+    background:linear-gradient(180deg,#17271d,#0e1912);
+    border:1px solid rgba(230,194,107,.22);
+    border-radius:26px;padding:25px;
+    box-shadow:0 30px 90px rgba(0,0,0,.55);
+  }
+  .dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  .dialog h3{font-size:1.7rem;margin:6px 0 3px}
+  .close{background:rgba(255,255,255,.07);color:white;width:38px;height:38px;padding:0;border-radius:50%}
+  .booking-info{
+    margin:18px 0;padding:14px 15px;border-radius:16px;
+    background:rgba(230,194,107,.08);border:1px solid rgba(230,194,107,.18);
+    color:var(--gold2)
+  }
+  label{display:block;margin:13px 0 6px;color:#dce4de;font-size:.88rem;font-weight:800}
+  input{
+    width:100%;padding:14px 14px;border-radius:14px;border:1px solid var(--line);
+    background:#0a120d;color:white;font:inherit;outline:none
+  }
+  input:focus{border-color:rgba(230,194,107,.5);box-shadow:0 0 0 3px rgba(230,194,107,.08)}
+  .confirm{
+    width:100%;margin-top:18px;padding:15px;
+    background:linear-gradient(135deg,var(--gold),#bd9134);color:#181106
+  }
+  .success{
+    display:none;text-align:center;padding:12px 2px 4px
+  }
+  .success .big{font-size:3rem}
+  .success h3{margin-top:10px}
+  .success p{color:var(--muted);line-height:1.55}
+  @media(max-width:800px){
+    .features{grid-template-columns:repeat(2,1fr);margin-top:-15px}
+    .game{grid-template-columns:1fr}
+    .buttons{justify-content:flex-start}
+  }
+  @media(max-width:520px){
+    .wrap{width:min(100% - 22px,1120px)}
+    .hero{min-height:auto;padding:52px 0 38px}
+    .hero h1{font-size:3.4rem}
+    .features{grid-template-columns:1fr 1fr;gap:9px}
+    .feature{padding:15px;min-height:145px}
+    .game{padding:18px;border-radius:20px}
+    .buttons{display:grid;grid-template-columns:1fr;width:100%}
+    .buttons button{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badge">🥂 Exklusiv am Spielfeldrand</div>
+    <h1>Röbis <span>VIP Lounge</span></h1>
+    <p class="claim">Dein bester Platz für einen Heimspiel-Abend beim FC Rheineck.</p>
+    <p class="sub">Direkt am Spielfeldrand sitzen, etwas trinken, einen kleinen Apéro geniessen – und mittendrin statt nur dabei sein.</p>
+    <div class="price-pill"><strong>CHF 10.–</strong><span>pro Platz</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap features">
+    <div class="feature"><div class="icon">⚽</div><h3>Beste Sicht</h3><p>Dein Platz direkt am Spielfeldrand.</p></div>
+    <div class="feature"><div class="icon">🛋️</div><h3>Bequem</h3><p>Gemütlicher Rattanstuhl mit Kissen inklusive kleinem Tisch.</p></div>
+    <div class="feature"><div class="icon">🥂</div><h3>1 Getränk inklusive</h3><p>Softgetränk, Bier oder Prosecco.</p></div>
+    <div class="feature"><div class="icon">🥖</div><h3>Kleiner Apéro</h3><p>Ein kleiner VIP-Apéro gehört natürlich dazu.</p></div>
+  </div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-title">
+        <div class="eyebrow">Jetzt reservieren</div>
+        <h2>Wähle dein Heimspiel</h2>
+      </div>
+
+      <div class="games" id="games"></div>
+      <div class="note">Pro Heimspiel stehen maximal 4 Plätze in Röbis VIP Lounge zur Verfügung.</div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">FC Rheineck · Röbis VIP Lounge 🥂</div>
+</footer>
+
+<div class="modal" id="modal">
+  <div class="dialog" id="dialog">
+    <div id="formArea">
+      <div class="dialog-head">
+        <div>
+          <div class="eyebrow">VIP Reservation</div>
+          <h3>Plätze buchen</h3>
+        </div>
+        <button class="close" onclick="closeModal()">×</button>
+      </div>
+      <div class="booking-info" id="bookingInfo"></div>
+      <form id="bookingForm">
+        <label for="firstname">Vorname</label>
+        <input id="firstname" autocomplete="given-name" required placeholder="z.B. Hans">
+
+        <label for="lastname">Name</label>
+        <input id="lastname" autocomplete="family-name" required placeholder="z.B. Muster">
+
+        <button class="confirm" type="submit" id="confirmBtn">🥂 VIP-Plätze reservieren</button>
+      </form>
+    </div>
+
+    <div class="success" id="successArea">
+      <div class="big">🥂</div>
+      <h3>VIP-Plätze reserviert!</h3>
+      <p id="successText"></p>
+      <button class="confirm" onclick="closeModal()">Perfekt!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxatrVqtyxyETZI8BhrR1xk7ZtkJG61bcog2RKlpKH0YFFdjmKw5tt4f1kBye5nnIqM/exec";
+
+let games = [];
+let selectedGame = null;
+let selectedSeats = 0;
+
+const gamesEl = document.getElementById("games");
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatGameDate(dateString, timeString) {
+  if (!dateString) return timeString || "";
+  const parts = String(dateString).split(".");
+  if (parts.length === 3) {
+    const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
+    const dateText = d.toLocaleDateString("de-CH", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric"
+    });
+    return `${dateText}${timeString ? " · " + timeString + " Uhr" : ""}`;
+  }
+  return `${dateString}${timeString ? " · " + timeString + " Uhr" : ""}`;
+}
+
+async function loadGames() {
+  gamesEl.innerHTML = `
+    <article class="game"><div>
+      <div class="game-top"><span class="status free">Wird geladen …</span></div>
+      <h3>Spiele werden aus Google Sheets geladen</h3>
+      <p>Einen kleinen Moment bitte.</p>
+    </div></article>`;
+
+  try {
+    const response = await fetch(`${API_URL}?action=spiele&ts=${Date.now()}`, {
+      method: "GET", cache: "no-store"
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message || "Spiele konnten nicht geladen werden.");
+    games = data.spiele || [];
+    renderGames();
+  } catch (error) {
+    console.error(error);
+    gamesEl.innerHTML = `
+      <article class="game"><div>
+        <div class="game-top"><span class="status sold">Verbindungsfehler</span></div>
+        <h3>Spiele konnten nicht geladen werden</h3>
+        <p>Bitte Seite nochmals laden. Falls der Fehler bleibt, prüfen wir die Apps-Script-Freigabe.</p>
+      </div></article>`;
+  }
+}
+
+function renderGames() {
+  if (!games.length) {
+    gamesEl.innerHTML = `
+      <article class="game"><div>
+        <div class="game-top"><span class="status low">Keine Spiele</span></div>
+        <h3>Aktuell sind keine VIP-Spiele freigeschaltet</h3>
+        <p>Sobald ein Spiel im Google Sheet auf JA steht, erscheint es hier.</p>
+      </div></article>`;
+    return;
+  }
+
+  gamesEl.innerHTML = games.map(g => {
+    const free = Math.max(0, Number(g.frei) || 0);
+    const statusClass = free === 0 ? "sold" : free === 2 ? "low" : "free";
+    const statusText = free === 0 ? "Ausverkauft" : `${free} Plätze frei`;
+    const actions = free === 0
+      ? `<div class="soldtext">🔴 Ausverkauft</div>`
+      : `<div class="buttons">
+          <button class="btn2" onclick="openBooking('${escapeHtml(g.id)}',2)" ${free < 2 ? "disabled" : ""}>👥 2 Plätze · CHF 20.–</button>
+          <button class="btn4" onclick="openBooking('${escapeHtml(g.id)}',4)" ${free < 4 ? "disabled" : ""}>👑 4 Plätze · CHF 40.–</button>
+        </div>`;
+
+    return `
+      <article class="game">
+        <div>
+          <div class="game-top">
+            <span class="status ${statusClass}">${statusText}</span>
+            <span class="game-date">${escapeHtml(formatGameDate(g.datum, g.zeit))}</span>
+          </div>
+          <div class="eyebrow">${escapeHtml(g.liga || "")}</div>
+          <h3>${escapeHtml(g.heimteam)} – ${escapeHtml(g.gegner)}</h3>
+          <p>Röbis VIP Lounge · Stapenwies</p>
+        </div>
+        ${actions}
+      </article>`;
+  }).join("");
+}
+
+function openBooking(gameId, seats) {
+  const g = games.find(x => String(x.id) === String(gameId));
+  if (!g) return;
+  const free = Number(g.frei) || 0;
+  if (seats > free) { loadGames(); return; }
+
+  selectedGame = g;
+  selectedSeats = seats;
+  document.getElementById("bookingInfo").innerHTML =
+    `<strong>${escapeHtml(g.heimteam)} – ${escapeHtml(g.gegner)}</strong><br>
+     ${escapeHtml(g.liga || "")}${g.liga ? "<br>" : ""}
+     ${escapeHtml(formatGameDate(g.datum, g.zeit))}<br><br>
+     ${seats} Plätze · <strong>CHF ${seats * 10}.–</strong>`;
+
+  document.getElementById("formArea").style.display = "block";
+  document.getElementById("successArea").style.display = "none";
+  document.getElementById("bookingForm").reset();
+  const confirmBtn = document.getElementById("confirmBtn");
+  confirmBtn.disabled = false;
+  confirmBtn.textContent = "🥂 VIP-Plätze reservieren";
+  document.getElementById("modal").classList.add("show");
+  setTimeout(() => document.getElementById("firstname").focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("show");
+}
+
+document.getElementById("modal").addEventListener("click", e => {
+  if (e.target.id === "modal") closeModal();
+});
+
+document.getElementById("bookingForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const firstname = document.getElementById("firstname").value.trim();
+  const lastname = document.getElementById("lastname").value.trim();
+  const confirmBtn = document.getElementById("confirmBtn");
+  if (!firstname || !lastname || !selectedGame) return;
+
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = "Reservation wird gespeichert …";
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "buchen",
+        spielId: selectedGame.id,
+        vorname: firstname,
+        name: lastname,
+        plaetze: selectedSeats
+      })
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+
+    if (!data.success) {
+      alert(data.message || "Die Reservation konnte nicht gespeichert werden.");
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "🥂 VIP-Plätze reservieren";
+      await loadGames();
+      return;
+    }
+
+    document.getElementById("formArea").style.display = "none";
+    document.getElementById("successArea").style.display = "block";
+    document.getElementById("successText").innerHTML =
+      `<strong>${escapeHtml(firstname)} ${escapeHtml(lastname)}</strong>, deine <strong>${selectedSeats} Plätze</strong> für
+       <strong>${escapeHtml(selectedGame.heimteam)} – ${escapeHtml(selectedGame.gegner)}</strong> sind reserviert.<br><br>
+       Betrag: <strong>CHF ${selectedSeats * 10}.–</strong>`;
+
+    await loadGames();
+  } catch (error) {
+    console.error(error);
+    alert("Die Verbindung zum Buchungssystem hat nicht funktioniert. Bitte versuche es nochmals.");
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = "🥂 VIP-Plätze reservieren";
+  }
+});
+
+loadGames();
+</script>
+</body>
+</html>

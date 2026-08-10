@@ -291,16 +291,54 @@ function escapeHtml(value) {
 }
 
 function formatGameDate(dateString, timeString) {
-  if (!dateString) return timeString || "";
-  const parts = String(dateString).split(".");
-  if (parts.length === 3) {
-    const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
-    const dateText = d.toLocaleDateString("de-CH", {
-      weekday: "long", day: "numeric", month: "long", year: "numeric"
-    });
-    return `${dateText}${timeString ? " · " + timeString + " Uhr" : ""}`;
+  if (!dateString) return "";
+
+  let dateObj = null;
+
+  // Google Sheets / Apps Script kann ein komplettes Datum liefern.
+  const parsedDate = new Date(dateString);
+  if (!isNaN(parsedDate.getTime())) {
+    dateObj = parsedDate;
+  } else {
+    // Alternativ: 14.08.2026
+    const parts = String(dateString).split(".");
+    if (parts.length === 3) {
+      dateObj = new Date(
+        Number(parts[2]),
+        Number(parts[1]) - 1,
+        Number(parts[0]),
+        12, 0, 0
+      );
+    }
   }
-  return `${dateString}${timeString ? " · " + timeString + " Uhr" : ""}`;
+
+  let dateText = String(dateString);
+  if (dateObj && !isNaN(dateObj.getTime())) {
+    dateText = dateObj.toLocaleDateString("de-CH", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+  }
+
+  let timeText = "";
+  if (timeString) {
+    // Google Sheets liefert Uhrzeiten teilweise als Datum von 1899.
+    const parsedTime = new Date(timeString);
+    if (!isNaN(parsedTime.getTime())) {
+      timeText = parsedTime.toLocaleTimeString("de-CH", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+    } else {
+      // Falls bereits nur "20:00" geliefert wird.
+      timeText = String(timeString).replace(/\s*Uhr\s*$/i, "").trim();
+    }
+  }
+
+  return `${dateText}${timeText ? " · " + timeText + " Uhr" : ""}`;
 }
 
 async function loadGames() {
@@ -362,7 +400,7 @@ function renderGames() {
           </div>
           <div class="eyebrow">${escapeHtml(g.liga || "")}</div>
           <h3>${escapeHtml(g.heimteam)} – ${escapeHtml(g.gegner)}</h3>
-          <p>Röbis VIP Lounge · Stapenwies</p>
+          <p>Röbis VIP Lounge · Stapfenwies</p>
         </div>
         ${actions}
       </article>`;

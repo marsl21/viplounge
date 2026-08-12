@@ -308,16 +308,36 @@ function escapeHtml(value) {
 }
 
 function formatGameDate(dateString, timeString) {
-  if (!dateString) return timeString || "";
-  const parts = String(dateString).split(".");
-  if (parts.length === 3) {
-    const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
-    const dateText = d.toLocaleDateString("de-CH", {
-      weekday: "long", day: "numeric", month: "long", year: "numeric"
-    });
-    return `${dateText}${timeString ? " · " + timeString + " Uhr" : ""}`;
+  if (!dateString) return "";
+  const rawDate = String(dateString).trim();
+  let dateObj = null;
+  const m = rawDate.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (m) {
+    dateObj = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), 12, 0, 0);
+  } else {
+    const parsed = new Date(rawDate);
+    if (!isNaN(parsed.getTime())) dateObj = parsed;
   }
-  return `${dateString}${timeString ? " · " + timeString + " Uhr" : ""}`;
+  const dateText = dateObj ? dateObj.toLocaleDateString("de-CH", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric"
+  }) : rawDate;
+
+  let timeText = "";
+  if (timeString !== null && timeString !== undefined && String(timeString).trim() !== "") {
+    const rawTime = String(timeString).trim();
+    const tm = rawTime.match(/^(\d{1,2}):(\d{2})/);
+    if (tm) {
+      timeText = tm[1].padStart(2, "0") + ":" + tm[2];
+    } else {
+      const parsedTime = new Date(rawTime);
+      if (!isNaN(parsedTime.getTime())) {
+        timeText = parsedTime.toLocaleTimeString("de-CH", {
+          hour: "2-digit", minute: "2-digit", hour12: false
+        });
+      }
+    }
+  }
+  return dateText + (timeText ? " · " + timeText + " Uhr" : "");
 }
 
 async function loadGames() {

@@ -202,6 +202,23 @@
     .buttons{display:grid;grid-template-columns:1fr;width:100%}
     .buttons button{width:100%}
   }
+
+  .sold-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:13px 18px;
+    border-radius:15px;
+    background:rgba(216,79,79,.14);
+    border:1px solid rgba(216,79,79,.45);
+    color:#ff7777;
+    font-size:.92rem;
+    font-weight:950;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    box-shadow:0 10px 30px rgba(216,79,79,.10);
+  }
+
 </style>
 </head>
 <body>
@@ -212,7 +229,7 @@
     <h1>Röbis <span>VIP Lounge</span></h1>
     <p class="claim">Dein bester Platz für einen Heimspiel-Abend beim FC Rheineck.</p>
     <p class="sub">Direkt am Spielfeldrand sitzen, etwas trinken, einen kleinen Apéro geniessen – und mittendrin statt nur dabei sein.</p>
-    <div class="price-pill"><strong>CHF 10.–</strong><span>pro Platz</span></div>
+    
   </div>
 </header>
 
@@ -291,54 +308,16 @@ function escapeHtml(value) {
 }
 
 function formatGameDate(dateString, timeString) {
-  if (!dateString) return "";
-
-  let dateObj = null;
-
-  // Google Sheets / Apps Script kann ein komplettes Datum liefern.
-  const parsedDate = new Date(dateString);
-  if (!isNaN(parsedDate.getTime())) {
-    dateObj = parsedDate;
-  } else {
-    // Alternativ: 14.08.2026
-    const parts = String(dateString).split(".");
-    if (parts.length === 3) {
-      dateObj = new Date(
-        Number(parts[2]),
-        Number(parts[1]) - 1,
-        Number(parts[0]),
-        12, 0, 0
-      );
-    }
-  }
-
-  let dateText = String(dateString);
-  if (dateObj && !isNaN(dateObj.getTime())) {
-    dateText = dateObj.toLocaleDateString("de-CH", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric"
+  if (!dateString) return timeString || "";
+  const parts = String(dateString).split(".");
+  if (parts.length === 3) {
+    const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
+    const dateText = d.toLocaleDateString("de-CH", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric"
     });
+    return `${dateText}${timeString ? " · " + timeString + " Uhr" : ""}`;
   }
-
-  let timeText = "";
-  if (timeString) {
-    // Google Sheets liefert Uhrzeiten teilweise als Datum von 1899.
-    const parsedTime = new Date(timeString);
-    if (!isNaN(parsedTime.getTime())) {
-      timeText = parsedTime.toLocaleTimeString("de-CH", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      });
-    } else {
-      // Falls bereits nur "20:00" geliefert wird.
-      timeText = String(timeString).replace(/\s*Uhr\s*$/i, "").trim();
-    }
-  }
-
-  return `${dateText}${timeText ? " · " + timeText + " Uhr" : ""}`;
+  return `${dateString}${timeString ? " · " + timeString + " Uhr" : ""}`;
 }
 
 async function loadGames() {
@@ -385,7 +364,7 @@ function renderGames() {
     const statusClass = free === 0 ? "sold" : free === 2 ? "low" : "free";
     const statusText = free === 0 ? "Ausverkauft" : `${free} Plätze frei`;
     const actions = free === 0
-      ? `<div class="soldtext">🔴 Ausverkauft</div>`
+      ? `<div class="sold-badge">AUSVERKAUFT</div>`
       : `<div class="buttons">
           <button class="btn2" onclick="openBooking('${escapeHtml(g.id)}',2)" ${free < 2 ? "disabled" : ""}>👥 2 Plätze · CHF 20.–</button>
           <button class="btn4" onclick="openBooking('${escapeHtml(g.id)}',4)" ${free < 4 ? "disabled" : ""}>👑 4 Plätze · CHF 40.–</button>
@@ -400,7 +379,7 @@ function renderGames() {
           </div>
           <div class="eyebrow">${escapeHtml(g.liga || "")}</div>
           <h3>${escapeHtml(g.heimteam)} – ${escapeHtml(g.gegner)}</h3>
-          <p>Röbis VIP Lounge · Stapfenwies</p>
+          <p>Röbis VIP Lounge · Stapenwies</p>
         </div>
         ${actions}
       </article>`;
